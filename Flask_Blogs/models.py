@@ -1,6 +1,7 @@
 from datetime import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer  #for timeout and change password
-from Flask_Blogs import db, login_manager, app
+from Flask_Blogs import db, login_manager
+from Flask_Blogs import create_app
 from flask_login import UserMixin
 
 @login_manager.user_loader
@@ -16,12 +17,12 @@ class User(db.Model, UserMixin):    #importing from both db.model and UserMixin
     posts = db.relationship('Post' , backref = 'author', lazy = True)
 
     def get_reset_token(self, expire_sec = 1800):
-        s = Serializer(app.config['SECRET_KEY'], expire_sec)
+        s = Serializer(create_app.config['SECRET_KEY'], expire_sec)
         return s.dumps({'user_id' : self.id}).decode('utf-8')
 
     @staticmethod
     def verify_reset_token():
-        s = Serializer(app.config['SECRET_KEY'])
+        s = Serializer(create_app.config['SECRET_KEY'])
         try:
             user_id = s.loads(token)['user_id']
         except:
